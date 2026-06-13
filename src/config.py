@@ -21,6 +21,8 @@ class Config:
     embedding_model: str
     embedding_batch_size: int
     pdf_path: str
+    chat_model: str
+    retriever_top_k: int
 
     @classmethod
     def from_env(cls) -> Config:
@@ -34,4 +36,6 @@ class Config:
             embedding_model=os.environ.get("EMBEDDING_MODEL", "openai/text-embedding-3-large"),
             embedding_batch_size=int(os.environ.get("EMBEDDING_BATCH_SIZE", "64")),
             pdf_path=os.environ.get("PDF_PATH", "assets/constitucion-politica-colombia-1991.pdf"),
+            chat_model=os.environ.get("CHAT_MODEL", "openai/gpt-4o-mini"),
+            retriever_top_k=int(os.environ.get("RETRIEVER_TOP_K", "5")),
         )
