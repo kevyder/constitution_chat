@@ -10,9 +10,9 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from config import Config  # noqa: E402
 from vector_db import create_vector_db_client  # noqa: E402
 from vectorize.chunk import parse_articles  # noqa: E402
-from vectorize.config import Config  # noqa: E402
 from vectorize.embed import Embedder  # noqa: E402
 from vectorize.extract import extract_text  # noqa: E402
 from vectorize.store import article_to_record  # noqa: E402
