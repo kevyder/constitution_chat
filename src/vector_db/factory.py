@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from config import Config
 from vector_db.base import VectorDBClient
-from vectorize.config import Config
 
 
 def create_vector_db_client(config: Config) -> VectorDBClient:
