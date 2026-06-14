@@ -16,6 +16,7 @@ class Config:
     openai_key: str
     vector_db_provider: str
     vector_db_url: str
+    vector_db_port: int | None
     vector_db_api_key: str | None
     collection_name: str
     embedding_model: str
@@ -31,6 +32,7 @@ class Config:
             openai_key=os.environ.get("OPENAI_KEY", ""),
             vector_db_provider=os.environ.get("VECTOR_DB_PROVIDER", "qdrant"),
             vector_db_url=os.environ.get("VECTOR_DB_URL", "http://localhost:6333"),
+            vector_db_port=int(os.environ["VECTOR_DB_PORT"]) if os.environ.get("VECTOR_DB_PORT") else None,
             vector_db_api_key=os.environ.get("VECTOR_DB_API_KEY"),
             collection_name=os.environ.get("VECTOR_DB_COLLECTION_NAME", "colombia_constitution"),
             embedding_model=os.environ.get("EMBEDDING_MODEL", "openai/text-embedding-3-large"),

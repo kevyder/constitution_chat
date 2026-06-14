@@ -7,6 +7,7 @@ Streamlit RAG chat over the Constitución Política de Colombia (1991) using Ope
 - **Not an installable package.** `pyproject.toml` has `package = false` (`[tool.uv]`). Entry-point scripts (`main.py`, `scripts/vectorize_constitution.py`) prepend `src/` to `sys.path` and use `# noqa: E402` on imports that follow. Do not flip `package = true` unless you also remove that `sys.path` setup.
 - **Run with `uv`, not `python`.** App entry point is `main.py`; use `uv run streamlit run main.py`, not `python main.py`.
 - **Qdrant is external.** There is no `docker-compose.yml` or `Dockerfile`. The app expects a reachable vector DB at `VECTOR_DB_URL` with optional `VECTOR_DB_API_KEY`. Default provider: `qdrant`. Default collection: `colombia_constitution`.
+- **Set `VECTOR_DB_PORT` for non-default Qdrant ports.** `qdrant-client` defaults no-port HTTPS URLs to port 6333; for `https://example.com/`, set `VECTOR_DB_PORT=443`.
 - **No `QDRANT_URL` alias.** `Config.from_env()` reads `VECTOR_DB_URL` and `VECTOR_DB_API_KEY` only.
 - **OpenAI env vars are generic.** `OPENAI_URL` / `OPENAI_KEY` are used for both embeddings and chat, and are not pinned to OpenAI.
 - **Changing embedding model can erase the collection.** Ingest detects vector dimension on first batch; if `EMBEDDING_MODEL` changes dimension, `scripts/vectorize_constitution.py` recreates the collection and clears existing points.

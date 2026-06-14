@@ -14,6 +14,7 @@ def create_vector_db_client(config: Config) -> VectorDBClient:
 
         return QdrantVectorDBClient(
             url=config.vector_db_url,
+            port=config.vector_db_port,
             api_key=config.vector_db_api_key,
         )
     msg = f"Unsupported vector DB provider: {config.vector_db_provider!r}"

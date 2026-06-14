@@ -18,8 +18,11 @@ def _to_uuid(raw_id: str) -> str:
 class QdrantVectorDBClient(VectorDBClient):
     """Thin :class:`VectorDBClient` adapter around ``qdrant_client.QdrantClient``."""
 
-    def __init__(self, url: str, api_key: str | None = None) -> None:
-        self._client = QdrantClient(url=url, api_key=api_key)
+    def __init__(self, url: str, api_key: str | None = None, port: int | None = None) -> None:
+        kwargs: dict[str, int | str | None] = {"url": url, "api_key": api_key}
+        if port is not None:
+            kwargs["port"] = port
+        self._client = QdrantClient(**kwargs)
 
     def collection_vector_size(self, collection_name: str) -> int | None:
         if not self._client.collection_exists(collection_name=collection_name):
@@ -57,15 +60,17 @@ class QdrantVectorDBClient(VectorDBClient):
     ) -> None:
         if not records:
             return
-        points = [
-            models.PointStruct(
-                id=_to_uuid(record.id),
-                vector=record.vector,
-                payload=record.payload,
-            )
-            for record in records
-        ]
-        self._client.upsert(collection_name=collection_name, points=points, wait=True)
+        for start in range(0, len(records), 64):
+            batch = records[start : start + 64]
+            points = [
+                models.PointStruct(
+                    id=_to_uuid(record.id),
+                    vector=record.vector,
+                    payload=record.payload,
+                )
+                for record in batch
+            ]
+            self._client.upsert(collection_name=collection_name, points=points, wait=True)
 
     def search(
         self,
