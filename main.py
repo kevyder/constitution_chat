@@ -15,7 +15,7 @@ from chat.chain import build_rag  # noqa: E402
 from config import Config  # noqa: E402
 
 st.set_page_config(page_title="Chat Constitución de Colombia de 1991", page_icon="📜🇨🇴", layout="centered")
-st.title("Chat Constitución de Colombia de 1991 📜 🇨🇴", text_alignment="center")
+st.title("Chat de la constitución de Colombia de 1991", text_alignment="center")
 st.caption(
     """Pregunta cualquier cosa sobre la Constitución de 1991.
     Las respuestas se basan únicamente en los artículos indexados de la Constitución Colombiana de 1991."""
