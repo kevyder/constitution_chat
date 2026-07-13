@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import uuid
 from pathlib import Path
 
 SRC = Path(__file__).resolve().parent / "src"
@@ -11,7 +12,7 @@ if str(SRC) not in sys.path:
 
 import streamlit as st  # noqa: E402
 
-from chat.chain import build_rag  # noqa: E402
+from chat.agent import build_rag  # noqa: E402
 from config import Config  # noqa: E402
 
 st.set_page_config(page_title="Chat Constitución de Colombia de 1991", page_icon="📜🇨🇴", layout="centered")
@@ -33,6 +34,8 @@ def main() -> None:
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
+    if "session_id" not in st.session_state:
+        st.session_state.session_id = str(uuid.uuid4())
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -53,12 +56,11 @@ def main() -> None:
 
     with st.chat_message("assistant"):
         with st.status("Generando respuesta...", expanded=True) as status:
-            st.write("🔍 Buscando artículos relevantes...")
-            docs = rag.retrieve(question)
-
             st.write("✍️ Generando respuesta con el modelo...")
             try:
-                answer = st.write_stream(rag.stream(question))
+                answer = st.write_stream(
+                    rag.stream(question, st.session_state.session_id),
+                )
                 status.update(
                     label="Respuesta lista",
                     state="complete",
@@ -69,6 +71,7 @@ def main() -> None:
                 st.error(f"Error al generar la respuesta: {exc}")
                 return
 
+        docs = rag.get_documents(st.session_state.session_id)
         sources_payload: list[dict] = []
         for doc in docs:
             article_type = doc.metadata.get("article_type", "permanent")

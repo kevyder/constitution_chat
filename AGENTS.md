@@ -19,11 +19,11 @@ Streamlit RAG chat over the Constitución Política de Colombia (1991) using Ope
 ## Architecture
 
 - `scripts/vectorize_constitution.py` — one-shot ingest: extract PDF text, parse articles, embed, upsert.
-- `main.py` — Streamlit entry. Builds the RAG chain via `chat.chain.build_rag(config)`.
+- `main.py` — Streamlit entry. Builds the RAG agent via `chat.agent.build_rag(config)`.
 - `src/vectorize/` — `extract` → `chunk` → `embed` → `store`. The chunker (`chunk.py`) is regex-driven and brittle if the source PDF layout changes.
 - `src/vector_db/` — `VectorDBClient` ABC plus a Qdrant implementation. Add new providers by subclassing and wiring them in `factory.py`.
-- `src/retrieval/` — LangChain retriever adapter + Spanish prompt (`prompts.py`).
-- `src/chat/chain.py` — `ConstitutionRAG` exposes `stream(question)` and `retrieve(question)`.
+- `src/retrieval/` — LangChain retriever adapter + Spanish prompts (`prompts.py`).
+- `src/chat/agent.py` — `ConstitutionRAG` wraps a LangGraph `create_agent` with `InMemorySaver` checkpointer. Exposes `stream(question, thread_id)` and `get_documents(thread_id)`.
 
 ## Commands
 
