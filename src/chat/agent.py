@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from langchain.agents import AgentState, create_agent
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessageChunk, HumanMessage
 from langchain_openai import ChatOpenAI
+from langfuse.langchain import CallbackHandler
 from langgraph.checkpoint.memory import InMemorySaver
 
 from chat.tools import make_search_tool
@@ -28,10 +29,15 @@ class ConstitutionRAG:
 
     agent: object
     checkpointer: InMemorySaver
+    langfuse_handler: CallbackHandler = field(default_factory=CallbackHandler)
 
     def stream(self, question: str, thread_id: str):
         """Yield answer tokens for ``question`` within the given session."""
-        config = {"configurable": {"thread_id": thread_id}}
+        config = {
+            "configurable": {"thread_id": thread_id},
+            "callbacks": [self.langfuse_handler],
+            "metadata": {"langfuse_session_id": thread_id},
+        }
         self.agent.update_state(config, {"documents": []})
         for chunk, _meta in self.agent.stream(
             {"messages": [HumanMessage(content=question)]},
@@ -78,4 +84,5 @@ def build_rag(config: Config) -> ConstitutionRAG:
     return ConstitutionRAG(
         agent=agent,
         checkpointer=checkpointer,
+        langfuse_handler=CallbackHandler(),
     )

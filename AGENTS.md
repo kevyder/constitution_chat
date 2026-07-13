@@ -55,6 +55,11 @@ EMBEDDING_MODEL=...        # changing this can recreate the collection
 EMBEDDING_BATCH_SIZE=64
 CHAT_MODEL=...
 RETRIEVER_TOP_K=5
+
+LANGFUSE_PUBLIC_KEY=pk-lf-...
+LANGFUSE_SECRET_KEY=sk-lf-...
+LANGFUSE_BASE_URL=https://cloud.langfuse.com
+
 PDF_PATH=assets/constitucion-politica-colombia-1991.pdf
 ```
 
