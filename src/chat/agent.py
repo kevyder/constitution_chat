@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from langchain.agents import AgentState, create_agent
+from langchain.agents.middleware import ToolCallLimitMiddleware
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessageChunk, HumanMessage
 from langchain_openai import ChatOpenAI
@@ -13,7 +14,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 from chat.tools import make_search_tool
 from config import Config
-from retrieval.prompts import SYSTEM_PROMPT_ES
+from retrieval.prompts import build_system_prompt
 from retrieval.retriever import build_retriever
 
 
@@ -67,6 +68,10 @@ def build_rag(config: Config) -> ConstitutionRAG:
         model=config.chat_model,
         streaming=True,
         temperature=0.2,
+        extra_body={
+            "reasoning_effort": "medium",
+            "reasoning_format": "hidden",
+        },
     )
 
     search_tool = make_search_tool(retriever)
@@ -76,9 +81,16 @@ def build_rag(config: Config) -> ConstitutionRAG:
     agent = create_agent(
         model=llm,
         tools=[search_tool],
-        system_prompt=SYSTEM_PROMPT_ES,
+        system_prompt=build_system_prompt(config.search_call_limit),
         state_schema=ConstitutionAgentState,
         checkpointer=checkpointer,
+        middleware=[
+            ToolCallLimitMiddleware(
+                tool_name="search_constitution",
+                run_limit=3,  # max calls per user turn
+                exit_behavior="end",  # gracefully stop instead of spinning
+            ),
+        ],
     )
 
     return ConstitutionRAG(

@@ -24,6 +24,7 @@ class Config:
     pdf_path: str
     chat_model: str
     retriever_top_k: int
+    search_call_limit: int
 
     @classmethod
     def from_env(cls) -> Config:
@@ -40,4 +41,5 @@ class Config:
             pdf_path=os.environ.get("PDF_PATH", "assets/constitucion-politica-colombia-1991.pdf"),
             chat_model=os.environ.get("CHAT_MODEL", "openai/gpt-4o-mini"),
             retriever_top_k=int(os.environ.get("RETRIEVER_TOP_K", "5")),
+            search_call_limit=int(os.environ.get("SEARCH_CALL_LIMIT", "3")),
         )
