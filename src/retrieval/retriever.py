@@ -39,8 +39,8 @@ class _PayloadRetriever(BaseRetriever):
 def build_retriever(config: Config) -> BaseRetriever:
     """Build a LangChain retriever that reads from the existing vector-DB collection."""
     embedder = Embedder(
-        url=config.openai_url,
-        api_key=config.openai_key,
+        url=config.embedding_openai_url,
+        api_key=config.embedding_openai_key,
         model=config.embedding_model,
     )
     vector_db = create_vector_db_client(config)

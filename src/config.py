@@ -14,6 +14,8 @@ load_dotenv()
 class Config:
     openai_url: str
     openai_key: str
+    embedding_openai_url: str
+    embedding_openai_key: str
     vector_db_provider: str
     vector_db_url: str
     vector_db_port: int | None
@@ -31,6 +33,10 @@ class Config:
         return cls(
             openai_url=os.environ.get("OPENAI_URL", "https://api.openai.com/v1/"),
             openai_key=os.environ.get("OPENAI_KEY", ""),
+            embedding_openai_url=os.environ.get(
+                "EMBEDDING_OPENAI_URL", os.environ.get("OPENAI_URL", "https://api.openai.com/v1/")
+            ),
+            embedding_openai_key=os.environ.get("EMBEDDING_OPENAI_KEY", os.environ.get("OPENAI_KEY", "")),
             vector_db_provider=os.environ.get("VECTOR_DB_PROVIDER", "qdrant"),
             vector_db_url=os.environ.get("VECTOR_DB_URL", "http://localhost:6333"),
             vector_db_port=int(os.environ["VECTOR_DB_PORT"]) if os.environ.get("VECTOR_DB_PORT") else None,

@@ -40,8 +40,8 @@ def main() -> None:
 
     print(f"Embedding with {config.embedding_model}...")
     embedder = Embedder(
-        url=config.openai_url,
-        api_key=config.openai_key,
+        url=config.embedding_openai_url,
+        api_key=config.embedding_openai_key,
         model=config.embedding_model,
     )
     texts = [article.text for article in articles]
