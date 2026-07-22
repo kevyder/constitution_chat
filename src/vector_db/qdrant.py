@@ -6,6 +6,7 @@ import uuid
 
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
+from qdrant_client.http.models import FieldCondition, Filter, MatchValue
 
 from vector_db.base import SearchResult, VectorDBClient, VectorRecord
 
@@ -92,6 +93,22 @@ class QdrantVectorDBClient(VectorDBClient):
     def count(self, collection_name: str) -> int:
         info = self._client.get_collection(collection_name=collection_name)
         return int(info.points_count or 0)
+
+    def get_by_payload_filter(
+        self,
+        collection_name: str,
+        filters: dict[str, str],
+        *,
+        limit: int = 5,
+    ) -> list[SearchResult]:
+        conditions = [FieldCondition(key=k, match=MatchValue(value=v)) for k, v in filters.items()]
+        results, _ = self._client.scroll(
+            collection_name=collection_name,
+            scroll_filter=Filter(must=conditions),
+            limit=limit,
+            with_payload=True,
+        )
+        return [SearchResult(id=str(r.id), score=1.0, payload=r.payload or {}) for r in results]
 
     def close(self) -> None:
         self._client.close()

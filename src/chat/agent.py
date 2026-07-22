@@ -12,7 +12,7 @@ from langchain_openai import ChatOpenAI
 from langfuse.langchain import CallbackHandler
 from langgraph.checkpoint.memory import InMemorySaver
 
-from chat.tools import make_search_tool
+from chat.tools import make_get_article_tool, make_search_tool
 from config import Config
 from retrieval.prompts import build_system_prompt
 from retrieval.retriever import build_retriever
@@ -60,7 +60,7 @@ class ConstitutionRAG:
 
 def build_rag(config: Config) -> ConstitutionRAG:
     """Build a streaming RAG agent from application config."""
-    retriever = build_retriever(config)
+    retriever, vector_db = build_retriever(config)
 
     llm = ChatOpenAI(
         base_url=config.openai_url,
@@ -75,12 +75,13 @@ def build_rag(config: Config) -> ConstitutionRAG:
     )
 
     search_tool = make_search_tool(retriever)
+    get_article_tool = make_get_article_tool(vector_db, config.collection_name)
 
     checkpointer = InMemorySaver()
 
     agent = create_agent(
         model=llm,
-        tools=[search_tool],
+        tools=[search_tool, get_article_tool],
         system_prompt=build_system_prompt(config.search_call_limit),
         state_schema=ConstitutionAgentState,
         checkpointer=checkpointer,

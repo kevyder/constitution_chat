@@ -12,7 +12,7 @@ Streamlit RAG chat over the Constitución Política de Colombia (1991) using Ope
 - **OpenAI env vars are generic.** `OPENAI_URL` / `OPENAI_KEY` are used for both embeddings and chat, and are not pinned to OpenAI.
 - **Changing embedding model can erase the collection.** Ingest detects vector dimension on first batch; if `EMBEDDING_MODEL` changes dimension, `scripts/vectorize_constitution.py` recreates the collection and clears existing points.
 - **Use the vector DB factory.** Always go through `vector_db.factory.create_vector_db_client(config)`. Do not import `QdrantVectorDBClient` from app code.
-- **Retriever contract.** `retrieval.retriever.build_retriever(config)` returns a LangChain retriever. `text` moves to `Document.page_content`; Qdrant payload stays in `Document.metadata`. Expected keys: `type`, `article_type`, `article_number`, `title`, `title_name`, `chapter`, `chapter_name`, `source`.
+- **Retriever contract.** `retrieval.retriever.build_retriever(config)` returns `(retriever, vector_db_client)`. `text` moves to `Document.page_content`; Qdrant payload stays in `Document.metadata`. Expected keys: `type`, `article_type`, `article_number`, `title`, `title_name`, `chapter`, `chapter_name`, `source`.
 - **Python 3.14 required.** Pinned in `.python-version`; `uv` reads it automatically.
 - **No tests configured.** No `tests/` directory and no test runner in `pyproject.toml`.
 

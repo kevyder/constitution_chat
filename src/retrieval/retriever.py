@@ -10,7 +10,7 @@ from langchain_core.retrievers import BaseRetriever
 
 from config import Config
 from retrieval.embeddings_adapter import LangChainEmbedder
-from vector_db import create_vector_db_client
+from vector_db import VectorDBClient, create_vector_db_client
 from vectorize.embed import Embedder
 
 
@@ -36,17 +36,18 @@ class _PayloadRetriever(BaseRetriever):
         return documents
 
 
-def build_retriever(config: Config) -> BaseRetriever:
-    """Build a LangChain retriever that reads from the existing vector-DB collection."""
+def build_retriever(config: Config) -> tuple[BaseRetriever, VectorDBClient]:
+    """Build a LangChain retriever and return the vector-DB client for direct access."""
     embedder = Embedder(
         url=config.embedding_openai_url,
         api_key=config.embedding_openai_key,
         model=config.embedding_model,
     )
     vector_db = create_vector_db_client(config)
-    return _PayloadRetriever(
+    retriever = _PayloadRetriever(
         client=vector_db,
         collection_name=config.collection_name,
         embeddings=LangChainEmbedder(embedder),
         k=config.retriever_top_k,
     )
+    return retriever, vector_db
