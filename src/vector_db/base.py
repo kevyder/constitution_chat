@@ -71,6 +71,16 @@ class VectorDBClient(ABC):
         """Return the number of points currently stored in the collection."""
 
     @abstractmethod
+    def get_by_payload_filter(
+        self,
+        collection_name: str,
+        filters: dict[str, str],
+        *,
+        limit: int = 5,
+    ) -> list[SearchResult]:
+        """Return records matching exact payload field values."""
+
+    @abstractmethod
     def close(self) -> None:
         """Release any underlying resources held by the client."""
 
