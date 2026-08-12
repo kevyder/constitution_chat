@@ -119,6 +119,7 @@ for item in dataset.items:
 def my_task(*, item, **kwargs):
     return my_llm(item.input)
 
+
 dataset.run_experiment(name="my-run", task=my_task)
 ```
 
@@ -143,8 +144,7 @@ from langfuse.span_filter import is_default_export_span
 
 langfuse = Langfuse(
     should_export_span=lambda span: (
-        is_default_export_span(span)
-        or span.instrumentation_scope.name.startswith("my_framework")
+        is_default_export_span(span) or span.instrumentation_scope.name.startswith("my_framework")
     )
 )
 ```

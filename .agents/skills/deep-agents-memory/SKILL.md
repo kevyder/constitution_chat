@@ -32,9 +32,10 @@ Default StateBackend stores files ephemerally within a thread.
 from deepagents import create_deep_agent
 
 agent = create_deep_agent()  # Default: StateBackend
-result = agent.invoke({
-    "messages": [{"role": "user", "content": "Write notes to /draft.txt"}]
-}, config={"configurable": {"thread_id": "thread-1"}})
+result = agent.invoke(
+    {"messages": [{"role": "user", "content": "Write notes to /draft.txt"}]},
+    config={"configurable": {"thread_id": "thread-1"}},
+)
 # /draft.txt is lost when thread ends
 ```
 </python>
@@ -64,10 +65,7 @@ from langgraph.store.memory import InMemoryStore
 
 store = InMemoryStore()
 
-composite_backend = lambda rt: CompositeBackend(
-    default=StateBackend(rt),
-    routes={"/memories/": StoreBackend(rt)}
-)
+composite_backend = lambda rt: CompositeBackend(default=StateBackend(rt), routes={"/memories/": StoreBackend(rt)})
 
 agent = create_deep_agent(backend=composite_backend, store=store)
 
@@ -139,7 +137,7 @@ from langgraph.checkpoint.memory import MemorySaver
 agent = create_deep_agent(
     backend=FilesystemBackend(root_dir=".", virtual_mode=True),  # Restrict access
     interrupt_on={"write_file": True, "edit_file": True},
-    checkpointer=MemorySaver()
+    checkpointer=MemorySaver(),
 )
 
 # Agent can read/write actual files on disk
@@ -172,12 +170,14 @@ from langchain.tools import tool, ToolRuntime
 from langchain.agents import create_agent
 from langgraph.store.memory import InMemoryStore
 
+
 @tool
 def get_user_preference(key: str, runtime: ToolRuntime) -> str:
     """Get a user preference from long-term storage."""
     store = runtime.store
     result = store.get(("user_prefs",), key)
     return str(result.value) if result else "Not found"
+
 
 @tool
 def save_user_preference(key: str, value: str, runtime: ToolRuntime) -> str:
@@ -186,13 +186,10 @@ def save_user_preference(key: str, value: str, runtime: ToolRuntime) -> str:
     store.put(("user_prefs",), key, {"value": value})
     return f"Saved {key}={value}"
 
+
 store = InMemoryStore()
 
-agent = create_agent(
-    model="gpt-4.1",
-    tools=[get_user_preference, save_user_preference],
-    store=store
-)
+agent = create_agent(model="gpt-4.1", tools=[get_user_preference, save_user_preference], store=store)
 ```
 </python>
 </ex-store-in-custom-tools>

@@ -66,10 +66,12 @@ query = "What is RAG?"
 relevant_docs = retriever.invoke(query)
 
 context = "\n\n".join([doc.page_content for doc in relevant_docs])
-response = model.invoke([
-    {"role": "system", "content": f"Use this context:\n\n{context}"},
-    {"role": "user", "content": query},
-])
+response = model.invoke(
+    [
+        {"role": "system", "content": f"Use this context:\n\n{context}"},
+        {"role": "user", "content": query},
+    ]
+)
 ```
 </python>
 <typescript>
@@ -175,7 +177,7 @@ from langchain_community.document_loaders import DirectoryLoader, TextLoader
 loader = DirectoryLoader(
     "path/to/documents",
     glob="**/*.txt",  # Pattern for files to load
-    loader_cls=TextLoader
+    loader_cls=TextLoader,
 )
 docs = loader.load()
 ```
@@ -194,8 +196,8 @@ Split documents into chunks using RecursiveCharacterTextSplitter with configurab
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,        # Characters per chunk
-    chunk_overlap=200,      # Overlap for context continuity
+    chunk_size=1000,  # Characters per chunk
+    chunk_overlap=200,  # Overlap for context continuity
     separators=["\n\n", "\n", " ", ""],  # Split hierarchy
 )
 
@@ -258,11 +260,7 @@ vectorstore = FAISS.from_documents(splits, embeddings)
 vectorstore.save_local("./faiss_index")
 
 # Load (requires allow_dangerous_deserialization)
-loaded = FAISS.load_local(
-    "./faiss_index",
-    embeddings,
-    allow_dangerous_deserialization=True
-)
+loaded = FAISS.load_local("./faiss_index", embeddings, allow_dangerous_deserialization=True)
 ```
 </python>
 <typescript>
@@ -334,17 +332,14 @@ Add metadata to documents and filter search results by metadata properties.
 ```python
 # Add metadata when creating documents
 docs = [
-    Document(
-        page_content="Python programming guide",
-        metadata={"language": "python", "topic": "programming"}
-    ),
+    Document(page_content="Python programming guide", metadata={"language": "python", "topic": "programming"}),
 ]
 
 # Search with filter
 results = vectorstore.similarity_search(
     "programming",
     k=5,
-    filter={"language": "python"}  # Only Python docs
+    filter={"language": "python"},  # Only Python docs
 )
 ```
 </python>
@@ -358,20 +353,20 @@ Create an agent that uses RAG as a tool for answering questions.
 from langchain.agents import create_agent
 from langchain.tools import tool
 
+
 @tool
 def search_docs(query: str) -> str:
     """Search documentation for relevant information."""
     docs = retriever.invoke(query)
     return "\n\n".join([d.page_content for d in docs])
 
+
 agent = create_agent(
     model="gpt-4.1",
     tools=[search_docs],
 )
 
-result = agent.invoke({
-    "messages": [{"role": "user", "content": "How do I create an agent?"}]
-})
+result = agent.invoke({"messages": [{"role": "user", "content": "How do I create an agent?"}]})
 ```
 </python>
 <typescript>

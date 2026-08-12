@@ -27,10 +27,12 @@ from langchain.agents.middleware import HumanInTheLoopMiddleware
 from langgraph.checkpoint.memory import MemorySaver
 from langchain.tools import tool
 
+
 @tool
 def send_email(to: str, subject: str, body: str) -> str:
     """Send an email."""
     return f"Email sent to {to}"
+
 
 agent = create_agent(
     model="gpt-4.1",
@@ -88,19 +90,14 @@ from langgraph.types import Command
 config = {"configurable": {"thread_id": "session-1"}}
 
 # Step 1: Agent runs until it needs to call tool
-result1 = agent.invoke({
-    "messages": [{"role": "user", "content": "Send email to john@example.com"}]
-}, config=config)
+result1 = agent.invoke({"messages": [{"role": "user", "content": "Send email to john@example.com"}]}, config=config)
 
 # Check for interrupt
 if "__interrupt__" in result1:
     print(f"Waiting for approval: {result1['__interrupt__']}")
 
 # Step 2: Human approves
-result2 = agent.invoke(
-    Command(resume={"decisions": [{"type": "approve"}]}),
-    config=config
-)
+result2 = agent.invoke(Command(resume={"decisions": [{"type": "approve"}]}), config=config)
 ```
 </python>
 <typescript>
@@ -137,20 +134,24 @@ Edit the tool arguments before approving when the original values need correctio
 ```python
 # Human edits the arguments — edited_action must include name + args
 result2 = agent.invoke(
-    Command(resume={
-        "decisions": [{
-            "type": "edit",
-            "edited_action": {
-                "name": "send_email",
-                "args": {
-                    "to": "alice@company.com",  # Fixed email
-                    "subject": "Project Meeting - Updated",
-                    "body": "...",
-                },
-            },
-        }]
-    }),
-    config=config
+    Command(
+        resume={
+            "decisions": [
+                {
+                    "type": "edit",
+                    "edited_action": {
+                        "name": "send_email",
+                        "args": {
+                            "to": "alice@company.com",  # Fixed email
+                            "subject": "Project Meeting - Updated",
+                            "body": "...",
+                        },
+                    },
+                }
+            ]
+        }
+    ),
+    config=config,
 )
 ```
 </python>
@@ -188,13 +189,17 @@ Reject a tool call and provide feedback explaining why it was rejected.
 ```python
 # Human rejects
 result2 = agent.invoke(
-    Command(resume={
-        "decisions": [{
-            "type": "reject",
-            "feedback": "Cannot delete customer data without manager approval",
-        }]
-    }),
-    config=config
+    Command(
+        resume={
+            "decisions": [
+                {
+                    "type": "reject",
+                    "feedback": "Cannot delete customer data without manager approval",
+                }
+            ]
+        }
+    ),
+    config=config,
 )
 ```
 </python>
@@ -248,6 +253,7 @@ Six decorator hooks are available. Two patterns:
 ```python
 from langchain.agents.middleware import wrap_tool_call
 
+
 @wrap_tool_call
 def retry_middleware(request, handler):
     for attempt in range(3):
@@ -256,6 +262,7 @@ def retry_middleware(request, handler):
         except Exception:
             if attempt == 2:
                 raise
+
 
 @wrap_tool_call
 def guard_middleware(request, handler):
@@ -289,9 +296,11 @@ const retryMiddleware = createMiddleware({
 ```python
 from langchain.agents.middleware import before_model, after_model
 
+
 @before_model
 def log_calls(state, runtime):
     print(f"Calling model with {len(state['messages'])} messages")
+
 
 @after_model
 def check_output(state, runtime):
@@ -333,9 +342,10 @@ agent = create_agent(model="gpt-4.1", tools=[send_email], middleware=[HumanInThe
 
 # CORRECT
 agent = create_agent(
-    model="gpt-4.1", tools=[send_email],
+    model="gpt-4.1",
+    tools=[send_email],
     checkpointer=MemorySaver(),  # Required
-    middleware=[HumanInTheLoopMiddleware({...})]
+    middleware=[HumanInTheLoopMiddleware({...})],
 )
 ```
 </python>
@@ -383,6 +393,7 @@ agent.invoke({"resume": {"decisions": [...]}})
 
 # CORRECT
 from langgraph.types import Command
+
 agent.invoke(Command(resume={"decisions": [{"type": "approve"}]}), config=config)
 ```
 </python>

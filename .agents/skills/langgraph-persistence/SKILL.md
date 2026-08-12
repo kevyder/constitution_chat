@@ -39,11 +39,14 @@ from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict, Annotated
 import operator
 
+
 class State(TypedDict):
     messages: Annotated[list, operator.add]
 
+
 def add_message(state: State) -> dict:
     return {"messages": ["Bot response"]}
+
 
 checkpointer = InMemorySaver()
 
@@ -318,6 +321,7 @@ When multiple **different** stateful subgraphs run in parallel, wrap each in its
 ```python
 from langgraph.graph import MessagesState, StateGraph
 
+
 def create_sub_agent(model, *, name, **kwargs):
     """Wrap an agent with a unique node name for namespace isolation."""
     agent = create_agent(model=model, name=name, **kwargs)
@@ -328,13 +332,20 @@ def create_sub_agent(model, *, name, **kwargs):
         .compile()
     )
 
+
 fruit_agent = create_sub_agent(
-    "gpt-4.1-mini", name="fruit_agent",
-    tools=[fruit_info], prompt="...", checkpointer=True,
+    "gpt-4.1-mini",
+    name="fruit_agent",
+    tools=[fruit_info],
+    prompt="...",
+    checkpointer=True,
 )
 veggie_agent = create_sub_agent(
-    "gpt-4.1-mini", name="veggie_agent",
-    tools=[veggie_info], prompt="...", checkpointer=True,
+    "gpt-4.1-mini",
+    name="veggie_agent",
+    tools=[veggie_info],
+    prompt="...",
+    checkpointer=True,
 )
 ```
 </python>
@@ -383,9 +394,11 @@ store.put(("alice", "preferences"), "language", {"preference": "short responses"
 # Node with store — access via runtime
 from langgraph.runtime import Runtime
 
+
 def respond(state, runtime: Runtime):
     prefs = runtime.store.get((state["user_id"], "preferences"), "language")
     return {"response": f"Using preference: {prefs.value}"}
+
 
 # Compile with BOTH checkpointer and store
 graph = builder.compile(checkpointer=checkpointer, store=store)
@@ -485,6 +498,7 @@ checkpointer = InMemorySaver()  # In-memory only!
 
 # CORRECT: Use persistent storage for production
 from langgraph.checkpoint.postgres import PostgresSaver
+
 with PostgresSaver.from_conn_string("postgresql://...") as checkpointer:
     checkpointer.setup()  # only needed on first use to create tables
     graph = builder.compile(checkpointer=checkpointer)
@@ -550,8 +564,10 @@ Access store via the Runtime object in graph nodes.
 def my_node(state):
     store.put(...)  # NameError! store not defined
 
+
 # CORRECT: Access store via runtime
 from langgraph.runtime import Runtime
+
 
 def my_node(state, runtime: Runtime):
     runtime.store.put(...)  # Correct store instance

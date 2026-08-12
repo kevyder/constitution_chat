@@ -41,10 +41,12 @@ Create a custom "researcher" subagent with specialized tools for academic paper 
 from deepagents import create_deep_agent
 from langchain.tools import tool
 
+
 @tool
 def search_papers(query: str) -> str:
     """Search academic papers."""
     return f"Found 10 papers about {query}"
+
 
 agent = create_deep_agent(
     subagents=[
@@ -107,7 +109,7 @@ agent = create_deep_agent(
             "interrupt_on": {"deploy_to_prod": True},  # Require approval
         }
     ],
-    checkpointer=MemorySaver()  # Required for interrupts
+    checkpointer=MemorySaver(),  # Required for interrupts
 )
 ```
 </python>
@@ -193,9 +195,14 @@ from deepagents import create_deep_agent
 
 agent = create_deep_agent()  # TodoListMiddleware included by default
 
-result = agent.invoke({
-    "messages": [{"role": "user", "content": "Create a REST API: design models, implement CRUD, add auth, write tests"}]
-}, config={"configurable": {"thread_id": "session-1"}})
+result = agent.invoke(
+    {
+        "messages": [
+            {"role": "user", "content": "Create a REST API: design models, implement CRUD, add auth, write tests"}
+        ]
+    },
+    config={"configurable": {"thread_id": "session-1"}},
+)
 
 # Agent's planning via write_todos:
 # [
@@ -278,7 +285,7 @@ agent = create_deep_agent(
         "execute_sql": {"allowed_decisions": ["approve", "reject"]},
         "read_file": False,  # No interrupts
     },
-    checkpointer=MemorySaver()  # REQUIRED for interrupts
+    checkpointer=MemorySaver(),  # REQUIRED for interrupts
 )
 ```
 </python>
@@ -310,17 +317,12 @@ from deepagents import create_deep_agent
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 
-agent = create_deep_agent(
-    interrupt_on={"write_file": True},
-    checkpointer=MemorySaver()
-)
+agent = create_deep_agent(interrupt_on={"write_file": True}, checkpointer=MemorySaver())
 
 config = {"configurable": {"thread_id": "session-1"}}
 
 # Step 1: Agent proposes write_file - execution pauses
-result = agent.invoke({
-    "messages": [{"role": "user", "content": "Write config to /prod.yaml"}]
-}, config=config)
+result = agent.invoke({"messages": [{"role": "user", "content": "Write config to /prod.yaml"}]}, config=config)
 
 # Step 2: Check for interrupts
 state = agent.get_state(config)
@@ -393,13 +395,19 @@ Edit the proposed action arguments before allowing execution.
 
 ```python
 result = agent.invoke(
-    Command(resume={"decisions": [{
-        "type": "edit",
-        "edited_action": {
-            "name": "execute_sql",
-            "args": {"query": "DELETE FROM users WHERE last_login < '2020-01-01' LIMIT 100"},
-        },
-    }]}),
+    Command(
+        resume={
+            "decisions": [
+                {
+                    "type": "edit",
+                    "edited_action": {
+                        "name": "execute_sql",
+                        "args": {"query": "DELETE FROM users WHERE last_login < '2020-01-01' LIMIT 100"},
+                    },
+                }
+            ]
+        }
+    ),
     config=config,
 )
 ```
@@ -483,9 +491,9 @@ await agent.invoke(new Command({ resume: { decisions: [{ type: "approve" }] } })
 Interrupts happen BETWEEN invoke() calls, not mid-execution.
 
 ```python
-result = agent.invoke({...}, config=config)       # Step 1: triggers interrupt
-if "__interrupt__" in result:                      # Step 2: check for interrupt
-    result = agent.invoke(                         # Step 3: resume
+result = agent.invoke({...}, config=config)  # Step 1: triggers interrupt
+if "__interrupt__" in result:  # Step 2: check for interrupt
+    result = agent.invoke(  # Step 3: resume
         Command(resume={"decisions": [{"type": "approve"}]}),
         config=config,
     )

@@ -30,6 +30,7 @@ Build production agents using `create_agent()`, middleware patterns, and the `@t
 from langchain.agents import create_agent
 from langchain_core.tools import tool
 
+
 @tool
 def get_weather(location: str) -> str:
     """Get current weather for a location.
@@ -39,15 +40,12 @@ def get_weather(location: str) -> str:
     """
     return f"Weather in {location}: Sunny, 72F"
 
+
 agent = create_agent(
-    model="anthropic:claude-sonnet-4-5",
-    tools=[get_weather],
-    system_prompt="You are a helpful assistant."
+    model="anthropic:claude-sonnet-4-5", tools=[get_weather], system_prompt="You are a helpful assistant."
 )
 
-result = agent.invoke({
-    "messages": [{"role": "user", "content": "What's the weather in Paris?"}]
-})
+result = agent.invoke({"messages": [{"role": "user", "content": "What's the weather in Paris?"}]})
 print(result["messages"][-1].content)
 ```
 </python>
@@ -138,6 +136,7 @@ Tools are functions that agents can call. Use the `@tool` decorator (Python) or 
 ```python
 from langchain_core.tools import tool
 
+
 @tool
 def add(a: float, b: float) -> float:
     """Add two numbers.
@@ -202,10 +201,12 @@ Get typed, validated responses from agents using `response_format` or `with_stru
 from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
+
 class ContactInfo(BaseModel):
     name: str
     email: str
     phone: str = Field(description="Phone number with area code")
+
 
 # Option 1: Agent with structured output
 agent = create_agent(model="gpt-4.1", tools=[search], response_format=ContactInfo)
@@ -214,6 +215,7 @@ print(result["structured_response"])  # ContactInfo(name='John', ...)
 
 # Option 2: Model-level structured output (no agent needed)
 from langchain_openai import ChatOpenAI
+
 model = ChatOpenAI(model="gpt-4.1")
 structured_model = model.with_structured_output(ContactInfo)
 response = structured_model.invoke("Extract: John, john@example.com, 555-1234")
@@ -248,6 +250,7 @@ const response = await structuredModel.invoke("Extract: John, john@example.com, 
 
 ```python
 from langchain_anthropic import ChatAnthropic
+
 agent = create_agent(model=ChatAnthropic(model="claude-sonnet-4-5", temperature=0), tools=[...])
 ```
 </model_config>
@@ -263,6 +266,7 @@ Clear descriptions help the agent know when to use each tool.
 def bad_tool(input: str) -> str:
     """Does stuff."""
     return "result"
+
 
 # CORRECT: Clear, specific description with Args
 @tool
