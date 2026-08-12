@@ -10,6 +10,7 @@ from langchain_core.retrievers import BaseRetriever
 
 from config import Config
 from retrieval.embeddings_adapter import LangChainEmbedder
+from retrieval.reranker import RAGReranker
 from vector_db import VectorDBClient, create_vector_db_client
 from vectorize.embed import Embedder
 
@@ -20,6 +21,7 @@ class _PayloadRetriever(BaseRetriever):
     client: Any
     collection_name: str
     embeddings: Embeddings
+    reranker: RAGReranker | None = None
     k: int = 5
 
     class Config:
@@ -33,6 +35,8 @@ class _PayloadRetriever(BaseRetriever):
             payload = dict(hit.payload or {})
             text = payload.pop("text", "")
             documents.append(Document(page_content=text, metadata=payload))
+        if self.reranker is not None:
+            return self.reranker.rerank(query, documents)
         return documents
 
 
@@ -44,10 +48,17 @@ def build_retriever(config: Config) -> tuple[BaseRetriever, VectorDBClient]:
         model=config.embedding_model,
     )
     vector_db = create_vector_db_client(config)
+    reranker = RAGReranker(
+        url=config.reranking_url,
+        api_key=config.reranking_key,
+        model=config.reranking_model,
+        top_k=config.reranking_top_k,
+    )
     retriever = _PayloadRetriever(
         client=vector_db,
         collection_name=config.collection_name,
         embeddings=LangChainEmbedder(embedder),
+        reranker=reranker,
         k=config.retriever_top_k,
     )
     return retriever, vector_db

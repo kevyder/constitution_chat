@@ -27,6 +27,10 @@ class Config:
     chat_model: str
     retriever_top_k: int
     search_call_limit: int
+    reranking_url: str
+    reranking_key: str
+    reranking_model: str
+    reranking_top_k: int
 
     @classmethod
     def from_env(cls) -> Config:
@@ -48,4 +52,8 @@ class Config:
             chat_model=os.environ.get("CHAT_MODEL", "openai/gpt-4o-mini"),
             retriever_top_k=int(os.environ.get("RETRIEVER_TOP_K", "5")),
             search_call_limit=int(os.environ.get("SEARCH_CALL_LIMIT", "3")),
+            reranking_url=os.environ.get("RERANKING_URL", ""),
+            reranking_key=os.environ.get("RERANKING_KEY", ""),
+            reranking_model=os.environ.get("RERANKING_MODEL", ""),
+            reranking_top_k=int(os.environ.get("RERANKING_TOP_K", "7")),
         )

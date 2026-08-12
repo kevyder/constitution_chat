@@ -22,7 +22,7 @@ Streamlit RAG chat over the Constitución Política de Colombia (1991) using Ope
 - `main.py` — Streamlit entry. Builds the RAG agent via `chat.agent.build_rag(config)`.
 - `src/vectorize/` — `extract` → `chunk` → `embed` → `store`. The chunker (`chunk.py`) is regex-driven and brittle if the source PDF layout changes.
 - `src/vector_db/` — `VectorDBClient` ABC plus a Qdrant implementation. Add new providers by subclassing and wiring them in `factory.py`.
-- `src/retrieval/` — LangChain retriever adapter + Spanish prompts (`prompts.py`).
+- `src/retrieval/` — LangChain retriever adapter + Spanish prompts (`prompts.py`). `retriever.py` fetches `RETRIEVER_TOP_K` candidates then `reranker.py` (`RAGReranker`, `requests`-based OpenRouter `/rerank`) reorders to `RERANKING_TOP_K`; fails open to the unranked candidates if unconfigured or on error.
 - `src/chat/agent.py` — `ConstitutionRAG` wraps a LangGraph `create_agent` with `InMemorySaver` checkpointer. Exposes `stream(question, thread_id)` and `get_documents(thread_id)`.
 
 ## Commands
@@ -59,6 +59,12 @@ EMBEDDING_MODEL=...        # changing this can recreate the collection
 EMBEDDING_BATCH_SIZE=64
 CHAT_MODEL=...
 RETRIEVER_TOP_K=5
+
+# Reranking (OpenRouter /rerank; fails open if unconfigured or on error)
+RERANKING_URL=https://openrouter.ai/api/v1/rerank
+RERANKING_KEY=...
+RERANKING_MODEL=nvidia/llama-nemotron-rerank-vl-1b-v2:free   # note: rerank model uses the 'nvidia/' prefix, not 'openrouter/'
+RERANKING_TOP_K=7
 
 LANGFUSE_PUBLIC_KEY=pk-lf-...
 LANGFUSE_SECRET_KEY=sk-lf-...
