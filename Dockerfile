@@ -1,6 +1,6 @@
 FROM python:3.14.3-slim
 
-ENV UV_VERSION=0.11.21
+ENV UV_VERSION=0.13.0
 
 WORKDIR /app
 
